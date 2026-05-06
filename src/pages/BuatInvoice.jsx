@@ -222,7 +222,7 @@ export default function BuatInvoice({ user, onSave, setPage }) {
       hash_sha256: hash,
       rsa_signature: sig,
       data_terenkripsi: encrypted,
-      qr_code_url: `https://invoicesecure.id/verify/${uuid}`,
+      qr_code_url: `https://invoice-secure.vercel.app/verify/${uuid}`,
       status_validasi: 'valid',
       tanggal_dibuat: new Date().toISOString().slice(0,19).replace('T',' '),
       catatan: form.catatan,
