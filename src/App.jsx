@@ -10,6 +10,7 @@ import RiwayatInvoice from './pages/RiwayatInvoice';
 import VerifikasiPage from './pages/VerifikasiPage';
 import { AdminPengguna, AdminLog } from './pages/AdminPages';
 import Pengaturan from './pages/Pengaturan';
+import VerifikasiPublik from './pages/VerifikasiPublik';
 
 // ── Main App ──────────────────────────────────────────────────────────────────
 export default function App() {
@@ -20,7 +21,15 @@ export default function App() {
 
   const handleLogout = () => { setUser(null); setPage('dashboard'); };
 
-  if (!user) return <LoginPage onLogin={u=>{setUser(u);setPage('dashboard');}} />;
+
+const isVerifyPage = window.location.pathname.startsWith('/verify/');
+
+if (!user && !isVerifyPage) return <LoginPage onLogin={u=>{setUser(u);setPage('dashboard');}} />;
+
+if (!user && isVerifyPage) {
+  const uuid = window.location.pathname.split('/verify/')[1];
+  return <VerifikasiPublik uuid={uuid} />;
+}
 
   const navStyle = user.role==='admin' ? styles.navbarAdmin : styles.navbar;
   const currentPage = typeof page==='object' ? page.name : page;
