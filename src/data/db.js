@@ -42,7 +42,7 @@ function generateSampleInvoices() {
       hash_sha256: hash,
       rsa_signature: sig,
       data_terenkripsi: simAES256Encrypt(dataStr, 'aes-master-key'),
-      qr_code_url: `https://invoicesecure.id/verify/${uuid}`,
+      qr_code_url: `https://invoice-secure.vercel.app/verify/${uuid}`,
       status_validasi: 'valid',
       tanggal_dibuat: `2026-03-${10+i} 09:00:00`,
     });
