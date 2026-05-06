@@ -2,18 +2,26 @@ import { useEffect, useState } from "react";
 import { sha256, simAES256Decrypt, rsaVerify } from '../utils/crypto';
 import { COLORS, styles, fmtShort } from '../utils/constants';
 import { DB } from '../data/db';
+import { getInvoiceByUUID } from '../utils/firebase';
 
 export default function VerifikasiPublik({ uuid }) {
   const [result, setResult] = useState(null);
   const [err, setErr] = useState('');
 
-  useEffect(() => {
+useEffect(() => {
+  const verify = async () => {
     if (!uuid) { setErr('UUID tidak valid'); return; }
 
-    const inv = DB.invoices.find(i =>
+    // Cari di DB lokal dulu
+    let inv = DB.invoices.find(i =>
       i.uuid_invoice === uuid ||
       i.qr_code_url.includes(uuid)
     );
+
+    // Kalau tidak ada, ambil dari Firebase
+    if (!inv) {
+      inv = await getInvoiceByUUID(uuid);
+    }
 
     if (!inv) { setErr('Invoice tidak ditemukan'); return; }
 
@@ -22,17 +30,10 @@ export default function VerifikasiPublik({ uuid }) {
     const hashMatch = reHash === inv.hash_sha256;
     const rsaOk = rsaVerify(inv.hash_sha256, inv.rsa_signature);
 
-    DB.verifikasi_log.push({
-      log_id: DB.nextLogId++,
-      invoice_id: inv.invoice_id,
-      ip_verifikator: 'publik',
-      hash_digunakan: reHash,
-      hasil_verifikasi: hashMatch && rsaOk ? 'valid' : 'tidak_valid',
-      waktu_verifikasi: new Date().toISOString().slice(0,19).replace('T',' ')
-    });
-
     setResult({ invoice: inv, hashMatch, rsaOk, reHash, ok: hashMatch && rsaOk });
-  }, [uuid]);
+  };
+  verify();
+}, [uuid]);
 
   return (
     <div style={{ minHeight:'100vh', background:'var(--color-background-tertiary)', fontFamily:"'Segoe UI', sans-serif" }}>

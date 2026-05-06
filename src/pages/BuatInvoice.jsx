@@ -3,6 +3,7 @@ import { sha256, rsaSign, simAES256Encrypt, simAES256Decrypt, rsaVerify, uuidv4,
 import { COLORS, styles, fmtShort } from '../utils/constants';
 import { DB } from '../data/db';
 import { Icon } from '../components/UI';
+import { saveInvoice } from '../utils/firebase';
 
 // ── QR Code Image Component (async real QR) ───────────────────────────────────
 function QRImg({ url, size=150 }) {
@@ -228,6 +229,7 @@ export default function BuatInvoice({ user, onSave, setPage }) {
       catatan: form.catatan,
     };
     DB.invoices.push(invoice);
+    await saveInvoice(invoice);
     setResult(invoice);
     setLoading(false);
     onSave();
