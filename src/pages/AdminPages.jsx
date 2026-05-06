@@ -97,7 +97,7 @@ export function AdminLog() {
     <div>
       <h1 style={{ margin:'0 0 24px',fontSize:22,fontWeight:500 }}>Log Sistem</h1>
 
-      <div style={{ display:'grid',gridTemplateColumns:'repeat(3,1fr)',gap:12,marginBottom:24 }}>
+      <div style={{ display:'grid',gridTemplateColumns:window.innerWidth<768?'1fr':'repeat(3,1fr)',gap:12,marginBottom:24 }}>
         {[['Total Verifikasi',logs.length,COLORS.primary,COLORS.primaryLight],['Verifikasi Valid',logs.filter(l=>l.hasil_verifikasi==='valid').length,COLORS.success,COLORS.successLight],['Verifikasi Gagal',logs.filter(l=>l.hasil_verifikasi==='tidak_valid').length,COLORS.danger,COLORS.dangerLight]].map(([lbl,val,c,bg])=>(
           <div key={lbl} style={{ ...styles.statCard,background:bg }}>
             <div style={{ fontSize:28,fontWeight:700,color:c }}>{val}</div>

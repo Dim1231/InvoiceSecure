@@ -27,7 +27,7 @@ export default function Pengaturan({ user }) {
       {activeTab==='profil' && (
         <div style={styles.card}>
           <h3 style={{ margin:'0 0 16px',fontSize:14,fontWeight:500 }}>Informasi Profil</h3>
-          <div style={{ display:'grid',gridTemplateColumns:'1fr 1fr',gap:12 }}>
+          <<div style={{ display:'grid',gridTemplateColumns:window.innerWidth<768?'1fr':'1fr 1fr',gap:12 }}>
             {[['Nama Lengkap','nama','text'],['Alamat Email','email','email'],['Nomor Telepon','telepon','tel'],['Nama Perusahaan','perusahaan','text']].map(([lbl,key,type])=>(
               <div key={key}>
                 <label style={styles.label}>{lbl}</label>

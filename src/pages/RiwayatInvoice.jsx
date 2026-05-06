@@ -48,6 +48,7 @@ export default function RiwayatInvoice({ user, setPage }) {
       </div>
 
       <div style={styles.card}>
+        <div style={{ overflowX:'auto' }}></div>
         <table style={styles.table}>
           <thead>
             <tr>

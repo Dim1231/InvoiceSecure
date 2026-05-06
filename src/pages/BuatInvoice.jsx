@@ -64,7 +64,7 @@ export function InvoiceDetail({ invoice, user, onBack }) {
 
       <div style={{ display:'grid', gridTemplateColumns:'1fr auto', gap:16, marginBottom:16 }}>
         <div style={styles.card}>
-          <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+          <div style={{ display:'grid', gridTemplateColumns:window.innerWidth<768?'1fr':'1fr 1fr', gap:16, marginBottom:16 }}>
             <div>
               <div style={{ fontSize:20, fontWeight:700, color:COLORS.primary, marginBottom:4 }}>{invoice.nomor_invoice}</div>
               <div style={{ fontSize:13, color:'var(--color-text-secondary)' }}>Diterbitkan: {invoice.tanggal_invoice}</div>
@@ -242,7 +242,7 @@ export default function BuatInvoice({ user, onSave, setPage }) {
         <h1 style={{ margin:0, fontSize:22, fontWeight:500 }}>Buat Invoice Baru</h1>
       </div>
 
-      <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:16, marginBottom:16 }}>
+      <div style={{ display:'grid', gridTemplateColumns:window.innerWidth<768?'1fr':'1fr 1fr', gap:16, marginBottom:16 }}>
         <div style={styles.card}>
           <h3 style={{ margin:'0 0 16px', fontSize:14, fontWeight:500 }}>Informasi Invoice</h3>
           <div style={{ display:'grid', gridTemplateColumns:'1fr 1fr', gap:12 }}>
