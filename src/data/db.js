@@ -1,5 +1,5 @@
 import { sha256, rsaSign, simAES256Encrypt, uuidv4 } from '../utils/crypto';
-import { getAllInvoices, saveInvoice } from './firebase';
+import { getAllInvoices, getAllUsers, saveUser } from '../utils/firebase';
 
 export const DB = {
   users: [
@@ -15,10 +15,23 @@ export const DB = {
 
 export async function initDB() {
   try {
+    // Load invoices
     const invoices = await getAllInvoices();
     DB.invoices = invoices;
     if (invoices.length > 0) {
       DB.nextInvoiceId = Math.max(...invoices.map(i => i.invoice_id)) + 1;
+    }
+
+    // Load users
+    const users = await getAllUsers();
+    if (users.length > 0) {
+      DB.users = users;
+      DB.nextUserId = Math.max(...users.map(u => u.user_id)) + 1;
+    } else {
+      // Save default users ke Firebase kalau belum ada
+      for (const u of DB.users) {
+        await saveUser(u);
+      }
     }
   } catch(e) {
     console.error('Failed to load from Firebase:', e);

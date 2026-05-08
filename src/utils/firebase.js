@@ -1,5 +1,5 @@
 import { initializeApp } from "firebase/app";
-import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, orderBy, query } from "firebase/firestore";
+import { getFirestore, collection, doc, setDoc, getDoc, getDocs, onSnapshot, query } from "firebase/firestore";
 
 const firebaseConfig = {
   apiKey: "AIzaSyC0N2mtDJGoRhGtUjMwZOmtCHfkgABy5eA",
@@ -13,6 +13,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 export const db = getFirestore(app);
 
+// ── Invoice ────────────────────────────────────────────────────────────────
 export async function saveInvoice(invoice) {
   try {
     await setDoc(doc(db, 'invoices', String(invoice.uuid_invoice)), invoice);
@@ -34,6 +35,34 @@ export async function getAllInvoices() {
   } catch(e) { return []; }
 }
 
+export function listenInvoices(callback) {
+  return onSnapshot(query(collection(db, 'invoices')), (snap) => {
+    callback(snap.docs.map(d => d.data()));
+  });
+}
+
+// ── Users ──────────────────────────────────────────────────────────────────
+export async function saveUser(user) {
+  try {
+    await setDoc(doc(db, 'users', String(user.user_id)), user);
+    return true;
+  } catch(e) { return false; }
+}
+
+export async function getAllUsers() {
+  try {
+    const snap = await getDocs(collection(db, 'users'));
+    return snap.docs.map(d => d.data());
+  } catch(e) { return []; }
+}
+
+export function listenUsers(callback) {
+  return onSnapshot(collection(db, 'users'), (snap) => {
+    callback(snap.docs.map(d => d.data()));
+  });
+}
+
+// ── Log ────────────────────────────────────────────────────────────────────
 export async function saveLog(log) {
   try {
     await setDoc(doc(db, 'verifikasi_log', String(log.log_id) + '_' + Date.now()), log);
@@ -41,20 +70,8 @@ export async function saveLog(log) {
   } catch(e) { return false; }
 }
 
-// Realtime listener untuk invoices
-export function listenInvoices(callback) {
-  const q = query(collection(db, 'invoices'));
-  return onSnapshot(q, (snap) => {
-    const invoices = snap.docs.map(d => d.data());
-    callback(invoices);
-  });
-}
-
-// Realtime listener untuk log
 export function listenLogs(callback) {
-  const q = query(collection(db, 'verifikasi_log'));
-  return onSnapshot(q, (snap) => {
-    const logs = snap.docs.map(d => d.data());
-    callback(logs);
+  return onSnapshot(collection(db, 'verifikasi_log'), (snap) => {
+    callback(snap.docs.map(d => d.data()));
   });
 }
