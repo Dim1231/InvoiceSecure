@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { styles } from './utils/constants';
 import { DB, initDB } from './data/db';
-import { listenInvoices, listenLogs, listenUsers } from './utils/firebase';
+import { listenInvoices, listenLogs, listenUsers, setFirebaseErrorHandler } from './utils/firebase';
 import { Toast, Sidebar, Icon } from './components/UI';
 import CryptoDemo from './components/CryptoDemo';
 import LoginPage from './pages/LoginPage';
@@ -19,11 +19,13 @@ export default function App() {
   const [toast, setToast] = useState(null);
   const [showCryptoDemo, setShowCryptoDemo] = useState(false);
   const [dbReady, setDbReady] = useState(false);
+  const [firebaseError, setFirebaseError] = useState(null);
   const [, forceUpdate] = useState(0);
 
   const isVerifyPage = window.location.pathname.startsWith('/verify/');
 
   useEffect(() => {
+    setFirebaseErrorHandler((err) => setFirebaseError(err));
     initDB().then(() => setDbReady(true));
 
     const unsubInvoices = listenInvoices((invoices) => {
@@ -103,6 +105,13 @@ export default function App() {
       <div style={styles.layout}>
         <Sidebar page={currentPage} setPage={setPage} user={user} />
         <main style={styles.main}>
+          {firebaseError && (
+            <div style={{ background:'#fff3cd', border:'1px solid #ffe69c', color:'#664d03', borderRadius:8, padding:'10px 14px', marginBottom:16, fontSize:13, lineHeight:1.5 }}>
+              <strong>⚠ Gagal terhubung ke Firebase ({firebaseError.context}{firebaseError.code ? `: ${firebaseError.code}` : ''})</strong>
+              <div>{firebaseError.message}</div>
+              <div style={{ marginTop:4 }}>Penyebab paling umum: <strong>Firestore Security Rules</strong> menolak akses. Cek Firebase Console → Firestore Database → Rules.</div>
+            </div>
+          )}
           {showCryptoDemo && <CryptoDemo />}
           {currentPage==='dashboard' && <Dashboard user={user} setPage={setPage} />}
           {currentPage==='buat' && <BuatInvoice user={user} onSave={()=>setToast({msg:'Invoice berhasil dibuat!',type:'success'})} setPage={setPage} />}
