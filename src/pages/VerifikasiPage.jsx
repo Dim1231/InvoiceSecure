@@ -3,6 +3,7 @@ import { sha256, simAES256Decrypt, rsaVerify, extractUUIDFromPDF } from '../util
 import { COLORS, styles, fmtShort } from '../utils/constants';
 import { DB } from '../data/db';
 import { Icon } from '../components/UI';
+import { getInvoiceByUUID, saveLog } from '../utils/firebase';
 
 // ── Verifikasi Page ───────────────────────────────────────────────────────────
 export default function VerifikasiPage() {
@@ -55,14 +56,16 @@ export default function VerifikasiPage() {
     const hashMatch = reHash === inv.hash_sha256;
     const rsaOk = rsaVerify(inv.hash_sha256, inv.rsa_signature);
 
-    DB.verifikasi_log.push({
-      log_id: DB.nextLogId++,
-      invoice_id: inv.invoice_id,
-      ip_verifikator: '127.0.0.1',
-      hash_digunakan: reHash,
-      hasil_verifikasi: hashMatch && rsaOk ? 'valid' : 'tidak_valid',
-      waktu_verifikasi: new Date().toISOString().slice(0,19).replace('T',' ')
-    });
+const logEntry = {
+  log_id: DB.nextLogId++,
+  invoice_id: inv.invoice_id,
+  ip_verifikator: '127.0.0.1',
+  hash_digunakan: reHash,
+  hasil_verifikasi: hashMatch && rsaOk ? 'valid' : 'tidak_valid',
+  waktu_verifikasi: new Date().toISOString().slice(0,19).replace('T',' ')
+};
+DB.verifikasi_log.push(logEntry);
+await saveLog(logEntry);;
 
     setResult({ invoice: inv, hashMatch, rsaOk, reHash, ok: hashMatch && rsaOk });
     setLoading(false);

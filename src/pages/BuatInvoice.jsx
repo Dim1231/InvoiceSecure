@@ -3,7 +3,7 @@ import { sha256, rsaSign, simAES256Encrypt, simAES256Decrypt, rsaVerify, uuidv4,
 import { COLORS, styles, fmtShort } from '../utils/constants';
 import { DB } from '../data/db';
 import { Icon } from '../components/UI';
-import { saveInvoice } from '../utils/firebase';
+import { saveInvoice, saveLog } from '../utils/firebase';
 
 // ── QR Code Image Component (async real QR) ───────────────────────────────────
 function QRImg({ url, size=150 }) {
@@ -23,22 +23,24 @@ export function InvoiceDetail({ invoice, user, onBack }) {
   const [downloading, setDownloading] = useState(false);
   const owner = DB.users.find(u=>u.user_id===invoice.user_id);
 
-  const verifyNow = () => {
-    const decrypted = simAES256Decrypt(invoice.data_terenkripsi, 'aes-master-key');
-    if (!decrypted) { setVerifyResult({ok:false, msg:'Gagal dekripsi data'}); return; }
-    const reHash = sha256(decrypted);
-    const hashMatch = reHash === invoice.hash_sha256;
-    const rsaOk = rsaVerify(invoice.hash_sha256, invoice.rsa_signature);
-    setVerifyResult({ ok: hashMatch && rsaOk, hashMatch, rsaOk, reHash });
-    DB.verifikasi_log.push({
-      log_id: DB.nextLogId++,
-      invoice_id: invoice.invoice_id,
-      ip_verifikator: '127.0.0.1',
-      hash_digunakan: reHash,
-      hasil_verifikasi: hashMatch&&rsaOk ? 'valid' : 'tidak_valid',
-      waktu_verifikasi: new Date().toISOString().slice(0,19).replace('T',' ')
-    });
+  const verifyNow = async () => {
+  const decrypted = simAES256Decrypt(invoice.data_terenkripsi, 'aes-master-key');
+  if (!decrypted) { setVerifyResult({ok:false, msg:'Gagal dekripsi data'}); return; }
+  const reHash = sha256(decrypted);
+  const hashMatch = reHash === invoice.hash_sha256;
+  const rsaOk = rsaVerify(invoice.hash_sha256, invoice.rsa_signature);
+  setVerifyResult({ ok: hashMatch && rsaOk, hashMatch, rsaOk, reHash });
+  const logEntry = {
+    log_id: DB.nextLogId++,
+    invoice_id: invoice.invoice_id,
+    ip_verifikator: '127.0.0.1',
+    hash_digunakan: reHash,
+    hasil_verifikasi: hashMatch&&rsaOk ? 'valid' : 'tidak_valid',
+    waktu_verifikasi: new Date().toISOString().slice(0,19).replace('T',' ')
   };
+  DB.verifikasi_log.push(logEntry);
+  await saveLog(logEntry);
+};
 
   const handleDownloadPDF = async () => {
     setDownloading(true);

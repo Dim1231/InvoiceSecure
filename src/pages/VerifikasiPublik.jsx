@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import { sha256, simAES256Decrypt, rsaVerify } from '../utils/crypto';
 import { COLORS, styles, fmtShort } from '../utils/constants';
 import { DB } from '../data/db';
-import { getInvoiceByUUID } from '../utils/firebase';
+import { getInvoiceByUUID, saveLog } from '../utils/firebase';
 
 export default function VerifikasiPublik({ uuid }) {
   const [result, setResult] = useState(null);
